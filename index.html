@@ -2,160 +2,169 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flipkart - Order Checkout</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Flipkart - Shop Online</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
-        body { font-family: 'Roboto', sans-serif; background-color: #f1f3f6; margin: 0; }
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+        body { font-family: 'Roboto', sans-serif; background-color: #f1f3f6; margin: 0; user-select: none; }
         .fk-blue { background-color: #2874f0; }
-        .step-header { background: #fff; padding: 15px; border-bottom: 1px solid #ddd; margin-bottom: 2px; display: flex; align-items: center; }
-        .step-num { background: #f1f3f6; color: #2874f0; width: 20px; height: 20px; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; margin-right: 12px; }
-        .product-card { background: white; border-right: 1px solid #eee; border-bottom: 1px solid #eee; position: relative; }
-        .gear-btn { position: absolute; top: 8px; right: 8px; color: #ddd; z-index: 10; font-size: 16px; cursor: pointer; }
+        .btn-orange { background: #ff9f00; color: #fff; }
+        .btn-buy { background: #fb641b; color: #fff; }
+        .product-card { background: #fff; border: 0.5px solid #f0f0f0; position: relative; }
         .line-clamp { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        input, textarea { border: 1px solid #ddd; padding: 12px; width: 100%; border-radius: 4px; margin-bottom: 12px; outline: none; font-size: 14px; }
-        .btn-orange { background: #fb641b; color: white; font-weight: bold; padding: 15px; width: 100%; border-radius: 2px; box-shadow: 0 1px 2px rgba(0,0,0,.2); }
-        .disabled-option { opacity: 0.6; background: #f9f9f9; pointer-events: none; }
+        .img-slider { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+        .img-slider::-webkit-scrollbar { display: none; }
+        .img-slider img { min-width: 100%; height: 350px; object-fit: contain; scroll-snap-align: start; }
+        input, textarea { border: 1px solid #dbdbdb; padding: 12px; width: 100%; border-radius: 2px; outline: none; margin-bottom: 10px; }
+        .step-box { background: #fff; margin-bottom: 8px; padding: 15px; }
     </style>
 </head>
-<body class="pb-20">
+<body class="pb-16">
 
-    <header id="mainHeader" class="fk-blue p-3 sticky top-0 z-[100] text-white flex justify-between items-center">
+    <header class="fk-blue p-3 sticky top-0 z-[100] text-white flex justify-between items-center shadow-md">
         <div class="flex items-center space-x-3">
-            <i class="fa-solid fa-bars"></i>
-            <span class="font-bold italic text-xl">Flipkart</span>
+            <i class="fa-solid fa-bars text-lg"></i>
+            <div class="flex flex-col">
+                <span class="font-bold italic text-xl leading-none">Flipkart</span>
+                <span class="text-[10px] italic">Plus <span class="text-yellow-400">✦</span></span>
+            </div>
         </div>
-        <button onclick="openAdd()" class="bg-white text-[#2874f0] px-3 py-1 rounded-sm font-bold text-[10px] uppercase">Add Product</button>
+        <div class="flex space-x-5 text-lg">
+            <i class="fa-solid fa-magnifying-glass" onclick="alert('Search feature coming soon!')"></i>
+            <i class="fa-solid fa-cart-shopping"></i>
+            <button onclick="openAdmin()" class="bg-white text-[#2874f0] text-[10px] px-2 py-0.5 font-bold rounded-sm uppercase">Admin</button>
+        </div>
     </header>
 
-    <div id="storeView" class="grid grid-cols-2 bg-white"></div>
+    <div id="storeFront" class="grid grid-cols-2"></div>
+
+    <div id="detailPage" class="hidden fixed inset-0 bg-white z-[200] overflow-y-auto pb-20">
+        <nav class="p-3 border-b flex items-center sticky top-0 bg-white z-[210]">
+            <i class="fa-solid fa-arrow-left text-xl mr-5" onclick="closeDetail()"></i>
+            <span class="font-medium truncate" id="navTitle">Product Details</span>
+        </nav>
+        <div id="detailBody"></div>
+        <div class="fixed bottom-0 w-full h-14 flex z-[220] shadow-2xl">
+            <button class="flex-1 bg-white text-black font-bold uppercase text-sm border-t">Add to Cart</button>
+            <button onclick="openCheckout()" class="flex-1 btn-buy text-white font-bold uppercase text-sm">Buy Now</button>
+        </div>
+    </div>
 
     <div id="checkoutPage" class="hidden fixed inset-0 bg-[#f1f3f6] z-[300] overflow-y-auto">
-        <nav class="fk-blue p-3 text-white flex items-center shadow-md">
+        <nav class="fk-blue p-3 text-white flex items-center">
             <i class="fa-solid fa-arrow-left text-xl mr-5" onclick="closeCheckout()"></i>
-            <span class="font-medium">Payments</span>
+            <span class="font-medium">Order Summary</span>
         </nav>
-
-        <div class="step-header">
-            <span class="step-num">1</span>
-            <span class="text-sm font-bold text-gray-500 uppercase">Login / Contact</span>
+        
+        <div class="step-box flex items-center text-gray-500 text-xs font-bold uppercase">
+            <span class="bg-gray-100 px-2 py-1 mr-2 text-blue-600">1</span> Login / Phone
         </div>
-        <div class="bg-white p-4 mb-2">
+        <div class="bg-white px-4 pb-4">
             <input type="text" id="custName" placeholder="Full Name">
-            <input type="number" id="custPhone" placeholder="Mobile Number">
+            <input type="number" id="custPhone" placeholder="10-digit mobile number">
         </div>
 
-        <div class="step-header">
-            <span class="step-num">2</span>
-            <span class="text-sm font-bold text-gray-500 uppercase">Delivery Address</span>
+        <div class="step-box flex items-center text-gray-500 text-xs font-bold uppercase mt-2">
+            <span class="bg-gray-100 px-2 py-1 mr-2 text-blue-600">2</span> Delivery Address
         </div>
-        <div class="bg-white p-4 mb-2">
-            <input type="number" placeholder="Pincode (Required)">
-            <textarea id="custAddr" placeholder="Full Address (House No, Area, Road)" rows="2"></textarea>
+        <div class="bg-white px-4 pb-4">
+            <textarea id="custAddr" placeholder="Flat, House no., Road, Area, Pincode" rows="2"></textarea>
         </div>
 
-        <div class="step-header">
-            <span class="step-num">3</span>
-            <span class="text-sm font-bold text-gray-500 uppercase">Payment Method</span>
+        <div class="step-box flex items-center text-gray-500 text-xs font-bold uppercase mt-2">
+            <span class="bg-gray-100 px-2 py-1 mr-2 text-blue-600">3</span> Payment Method
         </div>
-        <div class="bg-white p-4">
-            <div class="space-y-3">
-                <label class="flex items-center justify-between p-4 border-2 border-blue-500 rounded bg-blue-50">
-                    <div class="flex items-center">
-                        <input type="radio" name="pay" class="w-4 h-4 mr-3" checked>
-                        <div>
-                            <p class="text-sm font-bold">UPI</p>
-                            <p class="text-[10px] text-gray-500">Google Pay, PhonePe, Paytm</p>
-                        </div>
-                    </div>
-                    <img src="https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/upi_8992ba.png" class="h-4">
-                </label>
-
-                <div class="flex items-center justify-between p-4 border rounded disabled-option">
-                    <div class="flex items-center">
-                        <input type="radio" disabled class="w-4 h-4 mr-3">
-                        <div>
-                            <p class="text-sm font-bold text-gray-400">Cash on Delivery</p>
-                            <p class="text-[10px] text-red-500 font-bold">Currently not available for this item</p>
-                        </div>
-                    </div>
-                </div>
+        <div class="bg-white p-4 space-y-3">
+            <label class="flex items-center p-3 border rounded border-blue-500 bg-blue-50">
+                <input type="radio" checked class="mr-3 w-5 h-5">
+                <div class="text-sm font-bold">UPI (PhonePe/GPay/Paytm)</div>
+            </label>
+            <div class="flex items-center p-3 border rounded opacity-40 bg-gray-50">
+                <input type="radio" disabled class="mr-3 w-5 h-5">
+                <div class="text-sm font-bold text-gray-400">Cash on Delivery (Unavailable)</div>
             </div>
         </div>
 
-        <div class="bg-white p-4 mt-2 mb-20">
-            <p class="font-bold text-gray-400 text-[10px] uppercase mb-3 tracking-widest">Price Details</p>
-            <div class="flex justify-between text-sm mb-2"><span>Price (1 item)</span> <span id="summaryPrice">₹0</span></div>
-            <div class="flex justify-between text-sm mb-2"><span>Delivery Charges</span> <span class="text-green-600">FREE</span></div>
-            <div class="flex justify-between text-lg font-bold border-t pt-3 mt-2"><span>Total Amount</span> <span id="summaryTotal" class="text-black">₹0</span></div>
-            <p class="text-green-600 text-[11px] font-bold mt-2">You will save ₹2,000 on this order</p>
+        <div class="bg-white p-4 mt-2 border-t">
+            <div class="flex justify-between text-lg font-bold">
+                <span>Total Amount</span>
+                <span id="finalAmt">₹0</span>
+            </div>
+            <p class="text-green-600 text-xs font-bold mt-1">Free Delivery applied</p>
         </div>
 
-        <div class="p-3 bg-white sticky bottom-0 border-t shadow-[0_-5px_15px_rgba(0,0,0,0.05)] flex items-center justify-between">
-            <div>
-                <p class="text-xs text-gray-500 line-through" id="oldPriceSummary">₹0</p>
-                <p class="font-bold text-lg" id="finalPriceSummary">₹0</p>
-            </div>
-            <button onclick="placeOrder()" class="btn-orange px-10 py-3 w-auto">CONTINUE</button>
+        <div class="p-3 fixed bottom-0 w-full bg-white border-t">
+            <button onclick="processOrder()" class="w-full btn-buy py-3 font-bold uppercase rounded-sm">Continue</button>
         </div>
     </div>
 
     <div id="adminPanel" class="hidden fixed inset-0 bg-white z-[500] p-5 overflow-y-auto">
-        <h2 class="text-xl font-bold border-b pb-3 mb-4">Admin Panel</h2>
-        <input type="password" id="adminKey" placeholder="Secret Lock (947228)">
+        <h2 class="text-xl font-bold border-b pb-3 mb-4 flex justify-between">
+            Inventory Manager <span onclick="closeAdmin()" class="text-gray-400">&times;</span>
+        </h2>
+        <input type="password" id="adminKey" placeholder="Admin Secret (947228)">
         <input type="text" id="pName" placeholder="Product Title">
-        <input type="number" id="pPrice" placeholder="Selling Price">
-        <input type="number" id="pMRP" placeholder="MRP Price">
-        <input type="text" id="pImg" placeholder="Image URL">
-        <textarea id="pDesc" placeholder="Description..." rows="3"></textarea>
-        <button onclick="saveItem()" class="w-full fk-blue text-white py-4 rounded font-bold uppercase">Update Store</button>
-        <button onclick="closeAdmin()" class="w-full mt-2 text-gray-400 text-xs">CLOSE</button>
-    </div>
-
-    <div id="detailView" class="hidden fixed inset-0 bg-white z-[200] overflow-y-auto pb-20">
-        <nav class="p-3 border-b flex items-center sticky top-0 bg-white z-50">
-            <i class="fa-solid fa-arrow-left text-xl mr-5" onclick="location.reload()"></i>
-            <span class="font-medium">Product Details</span>
-        </nav>
-        <div id="detailContent" class="p-5"></div>
-        <div class="fixed bottom-0 w-full h-14 flex bg-white border-t z-50">
-            <button class="flex-1 font-bold text-gray-700 uppercase text-xs border-r">Add to Cart</button>
-            <button onclick="openCheckout()" class="flex-1 fk-blue text-white font-bold uppercase text-xs">Buy Now</button>
+        <div class="flex space-x-2">
+            <input type="number" id="pPrice" placeholder="Price">
+            <input type="number" id="pMRP" placeholder="MRP">
         </div>
+        <textarea id="pImgs" placeholder="Image URLs (Comma separated .jpg links)" rows="3"></textarea>
+        <textarea id="pDesc" placeholder="Product Features..." rows="3"></textarea>
+        <button onclick="addNewProduct()" class="w-full fk-blue text-white py-4 font-bold rounded shadow-lg mt-2">Update Website</button>
     </div>
 
     <script>
         const SECRET = "947228";
         const UPI_ID = "8709615634-w350@ybl";
-        let products = JSON.parse(localStorage.getItem('fk_v20_final')) || [];
+        let products = JSON.parse(localStorage.getItem('fk_v50_final')) || [];
         let activeP = null;
 
-        const defaultProducts = [
-            { name: "iPhone 16 Plus 256 GB: 5G Mobile Phone with Camera Control, A18 Chip and a Big Boost in Battery Life. Works with AirPods; White
-", price: 1449, mrp: 159900, img: "https://m.media-amazon.com/images/I/51hRToIjgxL._SL1500_.jpg", desc: "A18 Pro chip, 48MP camera." },
-            { name: "Samsung Galaxy S24 Ultra 5G", price: 1299, mrp: 154999, img: "https://m.media-amazon.com/images/I/71rs4Aer71L._AC_UY436_FMwebp_QL65_.jpg", desc: "Built-in S Pen, 200MP Camera." }
-        ];
+        function generate40() {
+            const productsData = [
+                { name: "iPhone 16 Pro Max (Desert Titanium)", price: 1440, mrp: 159900, cat: "Mobile", img: "https://rukminim2.flixcart.com/image/128/128/xif0q/mobile/s/4/b/-original-imahggex8m6jhazj.jpeg?q=70&crop=false" },
+                { name: "Samsung Galaxy S24 Ultra AI", price: 1299, mrp: 154999, cat: "Mobile", img: "https://rukminim2.flixcart.com/image/128/128/xif0q/mobile/j/m/z/-original-imahgfmxumntk7sy.jpeg?q=70&crop=false" },
+                { name: "MacBook Air M3 Chip 13-inch", price: 1049, mrp: 114900, cat: "Laptop", img: "https://rukminim2.flixcart.com/image/128/128/xif0q/computer/a/q/h/-original-imagypv6prbgkfzg.jpeg?q=70&crop=false" },
+                { name: "Sony WH-1000XM5 Headphones", price: 299, mrp: 1499, cat: "Audio", img: "https://rukminim2.flixcart.com/image/612/612/xif0q/headphone/9/a/w/-original-imahe5gm9yszqgxc.jpeg?q=70" },
+                { name: "Apple Watch Ultra 2", price: 99, mrp: 94900, cat: "Watch", img: "https://m.media-amazon.com/images/I/71Lfnk5lnBL._SL1500_.jpg" },
+                { name: "Canon EOS R6 Mirrorless", price: 229900, mrp: 243995, cat: "Camera", img: "https://m.media-amazon.com/images/I/7187qfX9XRL._SL1500_.jpg" },
+                { name: "PS5 Console Slim", price: 54990, mrp: 59990, cat: "Gaming", img: "https://m.media-amazon.com/images/I/510uTH8qS7L._SL1500_.jpg" },
+                { name: "iPad Pro M4 OLED", price: 99900, mrp: 109900, cat: "Tablet", img: "https://m.media-amazon.com/images/I/61XZQXFQeVL._SL1500_.jpg" }
+            ];
+
+            let list = [];
+            for(let i=0; i<40; i++) {
+                let base = productsData[i % productsData.length];
+                list.push({
+                    name: `${base.name} (Premium Edition)`,
+                    price: base.price,
+                    mrp: base.mrp,
+                    imgs: `${base.img}, ${base.img}`, 
+                    desc: `Experience the best ${base.cat} of 2025. Official 1 year brand warranty included.`
+                });
+            }
+            return list;
+        }
 
         function init() {
-            if(products.length === 0) products = defaultProducts;
+            if(products.length === 0) products = generate40();
             render();
         }
 
         function render() {
-            document.getElementById('storeView').innerHTML = products.map((p, i) => `
-                <div class="product-card p-4">
-                    <i class="fa-solid fa-plus-circle gear-btn" onclick="openEdit(${i})"></i>
-                    <div onclick="showDetail(${i})">
-                        <div class="h-32 flex items-center justify-center mb-3">
-                            <img src="${p.img}" class="max-h-full object-contain">
+            document.getElementById('storeFront').innerHTML = products.map((p, i) => `
+                <div class="product-card" onclick="showDetail(${i})">
+                    <div class="h-40 p-4 flex items-center justify-center">
+                        <img src="${p.imgs.split(',')[0]}" class="max-h-full object-contain">
+                    </div>
+                    <div class="p-3">
+                        <h3 class="text-sm text-gray-800 line-clamp font-normal">${p.name}</h3>
+                        <div class="flex items-center space-x-2 mt-1">
+                            <span class="font-bold text-base">₹${Number(p.price).toLocaleString('en-IN')}</span>
+                            <span class="text-green-600 text-[11px] font-bold">${Math.round(100-(p.price/p.mrp*100))}% off</span>
                         </div>
-                        <h3 class="text-xs text-gray-700 line-clamp h-8 font-normal">${p.name}</h3>
-                        <div class="flex items-center space-x-2 mt-2">
-                            <span class="font-bold text-sm">₹${Number(p.price).toLocaleString('en-IN')}</span>
-                            <span class="text-[10px] text-green-600 font-bold">${Math.round(100-(p.price/p.mrp*100))}% OFF</span>
-                        </div>
+                        <img src="https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/fa_62673a.png" class="h-4 mt-2">
                     </div>
                 </div>
             `).join('');
@@ -163,51 +172,57 @@
 
         function showDetail(i) {
             activeP = products[i];
-            document.getElementById('detailContent').innerHTML = `
-                <img src="${activeP.img}" class="w-full h-64 object-contain mb-5">
-                <h1 class="text-lg text-gray-800 font-normal mb-2">${activeP.name}</h1>
-                <div class="flex items-center space-x-2 mb-4">
-                    <span class="text-2xl font-bold">₹${Number(activeP.price).toLocaleString('en-IN')}</span>
-                    <span class="text-gray-400 line-through">₹${Number(activeP.mrp).toLocaleString('en-IN')}</span>
+            document.getElementById('navTitle').innerText = activeP.name;
+            const imgList = activeP.imgs.split(',');
+            document.getElementById('detailBody').innerHTML = `
+                <div class="img-slider bg-white py-5">
+                    ${imgList.map(img => `<img src="${img.trim()}">`).join('')}
                 </div>
-                <p class="text-sm text-gray-600 border-t pt-4">${activeP.desc}</p>
+                <div class="p-4 bg-white">
+                    <h1 class="text-lg text-gray-800 mb-2 leading-tight">${activeP.name}</h1>
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl font-bold">₹${Number(activeP.price).toLocaleString('en-IN')}</span>
+                        <span class="text-gray-400 line-through text-sm">₹${Number(activeP.mrp).toLocaleString('en-IN')}</span>
+                        <span class="text-green-600 font-bold text-sm">${Math.round(100-(activeP.price/activeP.mrp*100))}% OFF</span>
+                    </div>
+                </div>
+                <div class="mt-2 p-4 bg-white">
+                    <p class="text-sm font-bold text-gray-500 uppercase mb-3">Product Details</p>
+                    <p class="text-sm text-gray-700 leading-relaxed">${activeP.desc}</p>
+                </div>
             `;
-            document.getElementById('detailView').classList.remove('hidden');
+            document.getElementById('detailPage').classList.remove('hidden');
         }
 
         function openCheckout() {
-            const formattedPrice = "₹" + Number(activeP.price).toLocaleString('en-IN');
-            document.getElementById('summaryPrice').innerText = formattedPrice;
-            document.getElementById('summaryTotal').innerText = formattedPrice;
-            document.getElementById('finalPriceSummary').innerText = formattedPrice;
-            document.getElementById('oldPriceSummary').innerText = "₹" + Number(activeP.mrp).toLocaleString('en-IN');
+            document.getElementById('finalAmt').innerText = "₹" + Number(activeP.price).toLocaleString('en-IN');
             document.getElementById('checkoutPage').classList.remove('hidden');
         }
 
-        function placeOrder() {
+        function processOrder() {
             const name = document.getElementById('custName').value;
-            const phone = document.getElementById('custPhone').value;
-            const addr = document.getElementById('custAddr').value;
-            if(!name || !phone || !addr) return alert("Please complete Step 1 & 2 first!");
-            window.location.href = `upi://pay?pa=${UPI_ID}&pn=Flipkart&am=${activeP.price}&cu=INR`;
+            if(!name || !document.getElementById('custPhone').value) return alert("Please fill shipping details!");
+            window.location.href = `upi://pay?pa=${UPI_ID}&pn=FlipkartOrder&am=${activeP.price}&cu=INR`;
         }
 
-        function closeCheckout() { document.getElementById('checkoutPage').classList.add('hidden'); }
-        function openAdd() { document.getElementById('adminPanel').classList.remove('hidden'); }
-        function closeAdmin() { document.getElementById('adminPanel').classList.add('hidden'); }
-        function saveItem() {
-            if(document.getElementById('adminKey').value !== SECRET) return alert("Unauthorized!");
-            const data = {
+        function addNewProduct() {
+            if(document.getElementById('adminKey').value !== SECRET) return alert("Wrong Password!");
+            const p = {
                 name: document.getElementById('pName').value,
                 price: document.getElementById('pPrice').value,
                 mrp: document.getElementById('pMRP').value,
-                img: document.getElementById('pImg').value,
+                imgs: document.getElementById('pImgs').value,
                 desc: document.getElementById('pDesc').value
             };
-            products.unshift(data);
-            localStorage.setItem('fk_v20_final', JSON.stringify(products));
+            products.unshift(p);
+            localStorage.setItem('fk_v50_final', JSON.stringify(products));
             location.reload();
         }
+
+        function openAdmin() { document.getElementById('adminPanel').classList.remove('hidden'); }
+        function closeAdmin() { document.getElementById('adminPanel').classList.add('hidden'); }
+        function closeDetail() { document.getElementById('detailPage').classList.add('hidden'); }
+        function closeCheckout() { document.getElementById('checkoutPage').classList.add('hidden'); }
 
         init();
     </script>
