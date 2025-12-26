@@ -1,225 +1,214 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flipkart | Admin Detailed Store</title>
+    <title>Flipkart - Order Checkout</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
-        body { background-color: #f1f3f6; font-family: 'Roboto', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+        body { font-family: 'Roboto', sans-serif; background-color: #f1f3f6; margin: 0; }
         .fk-blue { background-color: #2874f0; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        
-        #adminBtn { display: none; position: fixed; bottom: 80px; right: 20px; background: #2874f0; color: white; width: 56px; height: 56px; border-radius: 50%; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 500; cursor: pointer; }
-        
-        .gallery-container { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; height: 350px; }
-        .gallery-item { flex: 0 0 100%; scroll-snap-align: start; display: flex; justify-content: center; align-items: center; padding: 20px; background: white; }
-        .gallery-item img { max-height: 100%; object-fit: contain; }
-        
-        .dot { width: 7px; height: 7px; border-radius: 50%; background: #ddd; }
-        .dot.active { background: #2874f0; width: 18px; border-radius: 10px; }
-
-        .spec-row { display: flex; padding: 10px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
-        .spec-label { color: #878787; width: 40%; flex-shrink: 0; }
-        .spec-value { color: #212121; font-weight: 500; }
+        .step-header { background: #fff; padding: 15px; border-bottom: 1px solid #ddd; margin-bottom: 2px; display: flex; align-items: center; }
+        .step-num { background: #f1f3f6; color: #2874f0; width: 20px; height: 20px; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; margin-right: 12px; }
+        .product-card { background: white; border-right: 1px solid #eee; border-bottom: 1px solid #eee; position: relative; }
+        .gear-btn { position: absolute; top: 8px; right: 8px; color: #ddd; z-index: 10; font-size: 16px; cursor: pointer; }
+        .line-clamp { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        input, textarea { border: 1px solid #ddd; padding: 12px; width: 100%; border-radius: 4px; margin-bottom: 12px; outline: none; font-size: 14px; }
+        .btn-orange { background: #fb641b; color: white; font-weight: bold; padding: 15px; width: 100%; border-radius: 2px; box-shadow: 0 1px 2px rgba(0,0,0,.2); }
+        .disabled-option { opacity: 0.6; background: #f9f9f9; pointer-events: none; }
     </style>
 </head>
 <body class="pb-20">
 
-    <header class="fk-blue p-3 sticky top-0 z-[100] text-white shadow-lg">
-        <div class="flex justify-between items-center mb-3">
-            <div class="flex items-center gap-3">
-                <i class="fa-solid fa-bars" onclick="askAdmin()"></i>
-                <img src="https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/flipkart-plus_8d85f4.png" class="h-4">
-            </div>
-            <i class="fa-solid fa-cart-shopping"></i>
+    <header id="mainHeader" class="fk-blue p-3 sticky top-0 z-[100] text-white flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+            <i class="fa-solid fa-bars"></i>
+            <span class="font-bold italic text-xl">Flipkart</span>
         </div>
-        <div class="bg-white flex items-center px-4 py-2 rounded-sm">
-            <input type="text" id="searchInput" onkeyup="searchProducts()" placeholder="Search Products..." class="w-full outline-none text-gray-700 text-sm">
-        </div>
+        <button onclick="openAdd()" class="bg-white text-[#2874f0] px-3 py-1 rounded-sm font-bold text-[10px] uppercase">Add Product</button>
     </header>
 
-    <main class="grid grid-cols-2 bg-gray-200 gap-[1px]" id="grid-view"></main>
+    <div id="storeView" class="grid grid-cols-2 bg-white"></div>
 
-    <div id="adminBtn" onclick="toggleForm()">
-        <i class="fa-solid fa-plus text-xl"></i>
-    </div>
-
-    <div id="addForm" class="fixed inset-0 bg-black/60 z-[1000] hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-lg p-6 space-y-3 overflow-y-auto max-h-[95vh]">
-            <h2 class="text-lg font-bold border-b pb-2">Add New Product Details</h2>
-            
-            <input type="text" id="newTitle" placeholder="Product Title" class="w-full border p-2 rounded text-sm outline-none">
-            <input type="number" id="newPrice" placeholder="Selling Price (₹)" class="w-full border p-2 rounded text-sm outline-none">
-            
-            <p class="text-[10px] text-blue-600 font-bold">IMAGE LINKS (Comma separated for gallery)</p>
-            <textarea id="newGallery" placeholder="Link1, Link2, Link3..." class="w-full border p-2 rounded text-sm h-16 outline-none"></textarea>
-            
-            <div class="bg-gray-50 p-3 rounded space-y-2">
-                <p class="text-xs font-bold text-gray-600">SPECIFICATIONS TABLE</p>
-                <input type="text" id="spec1" placeholder="Property (e.g. RAM)" class="w-full border p-2 rounded text-sm outline-none">
-                <input type="text" id="spec1val" placeholder="Value (e.g. 8 GB)" class="w-full border p-2 rounded text-sm outline-none">
-                <input type="text" id="spec2" placeholder="Property (e.g. Battery)" class="w-full border p-2 rounded text-sm outline-none">
-                <input type="text" id="spec2val" placeholder="Value (e.g. 5000 mAh)" class="w-full border p-2 rounded text-sm outline-none">
-            </div>
-
-            <p class="text-[10px] text-blue-600 font-bold uppercase">Product Description / About</p>
-            <textarea id="newDesc" placeholder="Write details about the product here..." class="w-full border p-2 rounded text-sm h-24 outline-none"></textarea>
-
-            <button onclick="addNewProduct()" class="w-full fk-blue text-white py-3 font-bold rounded shadow-lg">Upload Product</button>
-            <button onclick="toggleForm()" class="w-full text-gray-400 text-xs uppercase font-bold">Cancel</button>
-        </div>
-    </div>
-
-    <div id="pDetail" class="fixed inset-0 bg-white z-[200] hidden overflow-y-auto">
-        <nav class="p-4 border-b sticky top-0 bg-white z-[210] flex items-center">
-            <i class="fa-solid fa-arrow-left text-xl mr-4" onclick="closeDetail()"></i>
-            <span class="font-bold">Product Detail</span>
+    <div id="checkoutPage" class="hidden fixed inset-0 bg-[#f1f3f6] z-[300] overflow-y-auto">
+        <nav class="fk-blue p-3 text-white flex items-center shadow-md">
+            <i class="fa-solid fa-arrow-left text-xl mr-5" onclick="closeCheckout()"></i>
+            <span class="font-medium">Payments</span>
         </nav>
-        
-        <div class="pb-24">
-            <div class="gallery-container" id="image-slider" onscroll="updateDots()"></div>
-            <div class="flex justify-center gap-2 mt-2" id="dots"></div>
-            
-            <div class="p-4 bg-white mt-2">
-                <h1 id="p-title" class="text-md font-medium text-gray-800"></h1>
-                <div class="mt-2 flex items-center gap-2">
-                    <span id="p-price" class="text-2xl font-bold"></span>
-                    <span class="text-green-600 font-bold text-sm">90% off</span>
-                </div>
-                
-                <div class="mt-6 border-t pt-4">
-                    <p class="font-bold text-gray-800 mb-2 text-sm uppercase">Product Description</p>
-                    <p id="p-desc" class="text-sm text-gray-600 leading-relaxed"></p>
-                </div>
 
-                <div class="mt-6 border-t pt-4">
-                    <p class="font-bold text-gray-800 mb-3 uppercase text-sm tracking-wider">Specifications</p>
-                    <div id="spec-container"></div>
+        <div class="step-header">
+            <span class="step-num">1</span>
+            <span class="text-sm font-bold text-gray-500 uppercase">Login / Contact</span>
+        </div>
+        <div class="bg-white p-4 mb-2">
+            <input type="text" id="custName" placeholder="Full Name">
+            <input type="number" id="custPhone" placeholder="Mobile Number">
+        </div>
+
+        <div class="step-header">
+            <span class="step-num">2</span>
+            <span class="text-sm font-bold text-gray-500 uppercase">Delivery Address</span>
+        </div>
+        <div class="bg-white p-4 mb-2">
+            <input type="number" placeholder="Pincode (Required)">
+            <textarea id="custAddr" placeholder="Full Address (House No, Area, Road)" rows="2"></textarea>
+        </div>
+
+        <div class="step-header">
+            <span class="step-num">3</span>
+            <span class="text-sm font-bold text-gray-500 uppercase">Payment Method</span>
+        </div>
+        <div class="bg-white p-4">
+            <div class="space-y-3">
+                <label class="flex items-center justify-between p-4 border-2 border-blue-500 rounded bg-blue-50">
+                    <div class="flex items-center">
+                        <input type="radio" name="pay" class="w-4 h-4 mr-3" checked>
+                        <div>
+                            <p class="text-sm font-bold">UPI</p>
+                            <p class="text-[10px] text-gray-500">Google Pay, PhonePe, Paytm</p>
+                        </div>
+                    </div>
+                    <img src="https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/upi_8992ba.png" class="h-4">
+                </label>
+
+                <div class="flex items-center justify-between p-4 border rounded disabled-option">
+                    <div class="flex items-center">
+                        <input type="radio" disabled class="w-4 h-4 mr-3">
+                        <div>
+                            <p class="text-sm font-bold text-gray-400">Cash on Delivery</p>
+                            <p class="text-[10px] text-red-500 font-bold">Currently not available for this item</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="fixed bottom-0 w-full flex border-t bg-white z-[220]">
-            <button class="w-1/2 p-4 font-bold text-gray-600">Add to Cart</button>
-            <button onclick="showAddressPage()" class="w-1/2 p-4 font-bold bg-[#fb641b] text-white">Buy Now</button>
+        <div class="bg-white p-4 mt-2 mb-20">
+            <p class="font-bold text-gray-400 text-[10px] uppercase mb-3 tracking-widest">Price Details</p>
+            <div class="flex justify-between text-sm mb-2"><span>Price (1 item)</span> <span id="summaryPrice">₹0</span></div>
+            <div class="flex justify-between text-sm mb-2"><span>Delivery Charges</span> <span class="text-green-600">FREE</span></div>
+            <div class="flex justify-between text-lg font-bold border-t pt-3 mt-2"><span>Total Amount</span> <span id="summaryTotal" class="text-black">₹0</span></div>
+            <p class="text-green-600 text-[11px] font-bold mt-2">You will save ₹2,000 on this order</p>
+        </div>
+
+        <div class="p-3 bg-white sticky bottom-0 border-t shadow-[0_-5px_15px_rgba(0,0,0,0.05)] flex items-center justify-between">
+            <div>
+                <p class="text-xs text-gray-500 line-through" id="oldPriceSummary">₹0</p>
+                <p class="font-bold text-lg" id="finalPriceSummary">₹0</p>
+            </div>
+            <button onclick="placeOrder()" class="btn-orange px-10 py-3 w-auto">CONTINUE</button>
         </div>
     </div>
 
-    <div id="addrLayer" class="fixed inset-0 bg-[#f1f3f6] z-[300] hidden overflow-y-auto">
-        <div class="fk-blue p-4 text-white flex items-center gap-4 sticky top-0">
-            <i class="fa-solid fa-arrow-left" onclick="hideAddressPage()"></i>
-            <span class="font-bold">Delivery Address</span>
-        </div>
-        <div class="p-4">
-            <div class="bg-white p-5 rounded space-y-4">
-                <input type="text" id="custName" placeholder="Full Name" class="w-full border-b p-3 outline-none text-sm">
-                <input type="tel" id="custPhone" placeholder="Mobile Number" class="w-full border-b p-3 outline-none text-sm">
-                <textarea id="custAddr" placeholder="Full Address" class="w-full border-b p-3 outline-none text-sm h-20"></textarea>
-                <button onclick="processPayment()" class="w-full bg-[#fb641b] text-white py-4 font-bold rounded uppercase mt-4">Proceed to Pay</button>
-            </div>
+    <div id="adminPanel" class="hidden fixed inset-0 bg-white z-[500] p-5 overflow-y-auto">
+        <h2 class="text-xl font-bold border-b pb-3 mb-4">Admin Panel</h2>
+        <input type="password" id="adminKey" placeholder="Secret Lock (947228)">
+        <input type="text" id="pName" placeholder="Product Title">
+        <input type="number" id="pPrice" placeholder="Selling Price">
+        <input type="number" id="pMRP" placeholder="MRP Price">
+        <input type="text" id="pImg" placeholder="Image URL">
+        <textarea id="pDesc" placeholder="Description..." rows="3"></textarea>
+        <button onclick="saveItem()" class="w-full fk-blue text-white py-4 rounded font-bold uppercase">Update Store</button>
+        <button onclick="closeAdmin()" class="w-full mt-2 text-gray-400 text-xs">CLOSE</button>
+    </div>
+
+    <div id="detailView" class="hidden fixed inset-0 bg-white z-[200] overflow-y-auto pb-20">
+        <nav class="p-3 border-b flex items-center sticky top-0 bg-white z-50">
+            <i class="fa-solid fa-arrow-left text-xl mr-5" onclick="location.reload()"></i>
+            <span class="font-medium">Product Details</span>
+        </nav>
+        <div id="detailContent" class="p-5"></div>
+        <div class="fixed bottom-0 w-full h-14 flex bg-white border-t z-50">
+            <button class="flex-1 font-bold text-gray-700 uppercase text-xs border-r">Add to Cart</button>
+            <button onclick="openCheckout()" class="flex-1 fk-blue text-white font-bold uppercase text-xs">Buy Now</button>
         </div>
     </div>
 
     <script>
-        let isAdmin = false;
-        let allProducts = JSON.parse(localStorage.getItem('myAdvancedStore')) || [];
+        const SECRET = "947228";
+        const UPI_ID = "8709615634-w350@ybl";
+        let products = JSON.parse(localStorage.getItem('fk_v20_final')) || [];
+        let activeP = null;
 
-        function askAdmin() {
-            let pass = prompt("Enter Secret Lock:");
-            if(pass === "947228") {
-                isAdmin = true;
-                document.getElementById('adminBtn').style.display = 'flex';
-                renderGrid(allProducts);
-                alert("Admin Access Granted!");
-            } else { alert("Wrong Password!"); }
+        const defaultProducts = [
+            { name: "iPhone 16 Plus 256 GB: 5G Mobile Phone with Camera Control, A18 Chip and a Big Boost in Battery Life. Works with AirPods; White)", price: 1449, mrp: 159900, img: "https://m.media-amazon.com/images/I/31pQkw-B4WL._SX38_SY50_CR,0,0,38,50_.jpg", desc: "A18 Pro chip, 48MP camera." },
+            { name: "Samsung Galaxy S24 Ultra 5G", price: 129999, mrp: 154999, img: "https://m.media-amazon.com/images/I/71RVuS3q9QL._SL1500_.jpg", desc: "Built-in S Pen, 200MP Camera." }
+        ];
+
+        function init() {
+            if(products.length === 0) products = defaultProducts;
+            render();
         }
 
-        function renderGrid(data) {
-            document.getElementById('grid-view').innerHTML = data.map(p => `
-                <div class="bg-white p-3 border-b border-gray-100 relative">
-                    ${isAdmin ? `<button onclick="deleteProduct(${p.id})" class="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full text-[10px] z-10"><i class="fa-solid fa-trash"></i></button>` : ''}
-                    <div onclick='openDetail(${JSON.stringify(p)})'>
-                        <div class="h-40 flex items-center justify-center"><img src="${p.gallery[0]}" class="max-h-full"></div>
-                        <p class="text-xs mt-2 line-clamp-2">${p.name}</p>
-                        <div class="mt-1 flex items-center gap-2"><span class="font-bold">₹${p.price}</span><span class="text-green-600 text-[10px] font-bold">90% off</span></div>
+        function render() {
+            document.getElementById('storeView').innerHTML = products.map((p, i) => `
+                <div class="product-card p-4">
+                    <i class="fa-solid fa-plus-circle gear-btn" onclick="openEdit(${i})"></i>
+                    <div onclick="showDetail(${i})">
+                        <div class="h-32 flex items-center justify-center mb-3">
+                            <img src="${p.img}" class="max-h-full object-contain">
+                        </div>
+                        <h3 class="text-xs text-gray-700 line-clamp h-8 font-normal">${p.name}</h3>
+                        <div class="flex items-center space-x-2 mt-2">
+                            <span class="font-bold text-sm">₹${Number(p.price).toLocaleString('en-IN')}</span>
+                            <span class="text-[10px] text-green-600 font-bold">${Math.round(100-(p.price/p.mrp*100))}% OFF</span>
+                        </div>
                     </div>
                 </div>
             `).join('');
         }
 
-        function toggleForm() { document.getElementById('addForm').classList.toggle('hidden'); }
+        function showDetail(i) {
+            activeP = products[i];
+            document.getElementById('detailContent').innerHTML = `
+                <img src="${activeP.img}" class="w-full h-64 object-contain mb-5">
+                <h1 class="text-lg text-gray-800 font-normal mb-2">${activeP.name}</h1>
+                <div class="flex items-center space-x-2 mb-4">
+                    <span class="text-2xl font-bold">₹${Number(activeP.price).toLocaleString('en-IN')}</span>
+                    <span class="text-gray-400 line-through">₹${Number(activeP.mrp).toLocaleString('en-IN')}</span>
+                </div>
+                <p class="text-sm text-gray-600 border-t pt-4">${activeP.desc}</p>
+            `;
+            document.getElementById('detailView').classList.remove('hidden');
+        }
 
-        function addNewProduct() {
-            const title = document.getElementById('newTitle').value;
-            const price = document.getElementById('newPrice').value;
-            const gallery = document.getElementById('newGallery').value.split(',').map(l => l.trim());
-            const desc = document.getElementById('newDesc').value;
-            
-            const s1 = document.getElementById('spec1').value;
-            const v1 = document.getElementById('spec1val').value;
-            const s2 = document.getElementById('spec2').value;
-            const v2 = document.getElementById('spec2val').value;
+        function openCheckout() {
+            const formattedPrice = "₹" + Number(activeP.price).toLocaleString('en-IN');
+            document.getElementById('summaryPrice').innerText = formattedPrice;
+            document.getElementById('summaryTotal').innerText = formattedPrice;
+            document.getElementById('finalPriceSummary').innerText = formattedPrice;
+            document.getElementById('oldPriceSummary').innerText = "₹" + Number(activeP.mrp).toLocaleString('en-IN');
+            document.getElementById('checkoutPage').classList.remove('hidden');
+        }
 
-            if(!title || !price || !gallery[0]) return alert("Basics are required!");
+        function placeOrder() {
+            const name = document.getElementById('custName').value;
+            const phone = document.getElementById('custPhone').value;
+            const addr = document.getElementById('custAddr').value;
+            if(!name || !phone || !addr) return alert("Please complete Step 1 & 2 first!");
+            window.location.href = `upi://pay?pa=${UPI_ID}&pn=Flipkart&am=${activeP.price}&cu=INR`;
+        }
 
-            let newP = {
-                id: Date.now(),
-                name: title,
-                price: price,
-                gallery: gallery,
-                desc: desc || "No description provided.",
-                specs: [[s1 || "Specs", v1 || "N/A"], [s2 || "Specs", v2 || "N/A"]]
+        function closeCheckout() { document.getElementById('checkoutPage').classList.add('hidden'); }
+        function openAdd() { document.getElementById('adminPanel').classList.remove('hidden'); }
+        function closeAdmin() { document.getElementById('adminPanel').classList.add('hidden'); }
+        function saveItem() {
+            if(document.getElementById('adminKey').value !== SECRET) return alert("Unauthorized!");
+            const data = {
+                name: document.getElementById('pName').value,
+                price: document.getElementById('pPrice').value,
+                mrp: document.getElementById('pMRP').value,
+                img: document.getElementById('pImg').value,
+                desc: document.getElementById('pDesc').value
             };
-
-            allProducts.unshift(newP);
-            localStorage.setItem('myAdvancedStore', JSON.stringify(allProducts));
-            renderGrid(allProducts);
-            toggleForm();
+            products.unshift(data);
+            localStorage.setItem('fk_v20_final', JSON.stringify(products));
+            location.reload();
         }
 
-        function openDetail(p) {
-            document.getElementById('p-title').innerText = p.name;
-            document.getElementById('p-price').innerText = "₹" + p.price;
-            document.getElementById('p-desc').innerText = p.desc;
-            
-            document.getElementById('image-slider').innerHTML = p.gallery.map(img => `<div class="gallery-item"><img src="${img}"></div>`).join('');
-            document.getElementById('dots').innerHTML = p.gallery.map((_, i) => `<div class="dot ${i===0?'active':''}"></div>`).join('');
-            
-            document.getElementById('spec-container').innerHTML = p.specs.map(s => `
-                <div class="spec-row"><div class="spec-label">${s[0]}</div><div class="spec-value">${s[1]}</div></div>
-            `).join('');
-
-            document.getElementById('pDetail').classList.remove('hidden');
-        }
-
-        function deleteProduct(id) {
-            if(confirm("Delete this product?")) {
-                allProducts = allProducts.filter(p => p.id !== id);
-                localStorage.setItem('myAdvancedStore', JSON.stringify(allProducts));
-                renderGrid(allProducts);
-            }
-        }
-
-        function closeDetail() { document.getElementById('pDetail').classList.add('hidden'); }
-        function showAddressPage() { document.getElementById('pDetail').classList.add('hidden'); document.getElementById('addrLayer').classList.remove('hidden'); }
-        function hideAddressPage() { document.getElementById('addrLayer').classList.add('hidden'); document.getElementById('pDetail').classList.remove('hidden'); }
-        
-        function processPayment() {
-            if(!document.getElementById('custName').value) return alert("Fill Name!");
-            let amt = document.getElementById('p-price').innerText.replace('₹', '');
-            window.location.href = `upi://pay?pa=8709615634-w350@ybl&pn=Flipkart&am=${amt}&cu=INR`;
-        }
-
-        function updateDots() {
-            const slider = document.getElementById('image-slider');
-            const index = Math.round(slider.scrollLeft / slider.clientWidth);
-            document.querySelectorAll('.dot').forEach((dot, i) => dot.classList.toggle('active', i === index));
-        }
-
-        renderGrid(allProducts);
+        init();
     </script>
 </body>
 </html>
