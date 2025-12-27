@@ -121,7 +121,7 @@
         let products = JSON.parse(localStorage.getItem('fk_v50_final')) || [];
         let activeP = null;
 
-        function generate40() {
+        function generate90() {
             const productsData = [
                 { name: "iPhone 16 Pro Max (Desert Titanium)", price: 1440, mrp: 134900, cat: "Mobile", img: "https://rukminim2.flixcart.com/image/128/128/xif0q/mobile/b/f/5/-original-imahggexm5yafhez.jpeg?q=70&crop=false,https://rukminim2.flixcart.com/image/128/128/xif0q/mobile/s/4/b/-original-imahggex8m6jhazj.jpeg?q=70&crop=false,https://rukminim2.flixcart.com/image/128/128/xif0q/mobile/s/1/0/-original-imahggevkpgh5dkc.jpeg?q=70&crop=false,https://rukminim2.flixcart.com/image/128/128/xif0q/mobile/i/z/y/-original-imahggevgnkffgfs.jpeg?q=70&crop=false,https://rukminim2.flixcart.com/image/128/128/xif0q/mobile/d/o/r/-original-imahfvx3ywpmyexy.jpeg?q=70&crop=false,https://rukminim2.flixcart.com/image/128/128/xif0q/mobile/n/b/t/-original-imahggex3usnr5dv.jpeg?q=70&crop=false,https://rukminim2.flixcart.com/image/128/128/xif0q/mobile/u/i/p/-original-imahggexnszdzhgk.jpeg?q=70&crop=false",rating: "4.7" },
                 { name: "Samsung Galaxy S24 Ultra 5G (Titanium Gray, 256 GB)", price: 1299, mrp: 98500, cat: "Mobile", img: "https://rukminim2.flixcart.com/image/128/128/xif0q/mobile/j/m/z/-original-imahgfmxumntk7sy.jpeg?q=70&crop=false,https://rukminim2.flixcart.com/image/128/128/xif0q/mobile/l/u/t/-original-imahggevfhnjjmvf.jpeg?q=70&crop=false,https://rukminim2.flixcart.com/image/128/128/xif0q/mobile/r/y/v/-original-imahggexzqyg8zzh.jpeg?q=70&crop=false,https://rukminim2.flixcart.com/image/128/128/xif0q/mobile/n/z/r/-original-imahggex7hycrjgd.jpeg?q=70&crop=false,https://rukminim2.flixcart.com/image/128/128/xif0q/mobile/q/v/8/-original-imahggexsnwzfzcb.jpeg?q=70&crop=false,https://rukminim2.flixcart.com/image/128/128/xif0q/mobile/b/o/t/-original-imahggexrufqhnyf.jpeg?q=70&crop=false,https://rukminim2.flixcart.com/image/128/128/xif0q/mobile/5/c/x/-original-imahggevnsn9ubah.jpeg?q=70&crop=false" },
@@ -135,7 +135,7 @@
             ];
 
             let list = [];
-            for(let i=0; i<40; i++) {
+            for(let i=0; i<90; i++) {
                 let base = productsData[i % productsData.length];
                 list.push({
                     name: `${base.name} (Premium Edition)`,
